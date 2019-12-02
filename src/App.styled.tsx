@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { TextField, Typography } from '@material-ui/core';
+import { TextField, Typography, Checkbox } from '@material-ui/core';
 
 export const Wrapper = styled.div`
   display: flex;
@@ -21,9 +21,14 @@ export const ExampleItemWrapper = styled.div`
   justify-content: space-between;
 `;
 
+export const StyledCheckbox = styled(Checkbox)`
+  padding-bottom: 0 !important;
+`;
+
 export const StyledTypography = styled(Typography)`
   align-self: flex-end;
   max-width: 400px;
+  padding-right: 24px;
 `;
 
 export const StyledTextField = styled(TextField)`
