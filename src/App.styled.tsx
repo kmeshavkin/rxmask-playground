@@ -35,3 +35,8 @@ export const StyledTextField = styled(TextField)`
   width: 140px;
   align-self: flex-end;
 `;
+
+export const WideStyledTextField = styled(TextField)`
+  width: 300px;
+  align-self: flex-end;
+`;

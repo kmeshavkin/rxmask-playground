@@ -1,33 +1,25 @@
 import React from "react";
-import {
-  Typography,
-  TextField
-} from "@material-ui/core";
+import { Typography, TextField, Radio } from "@material-ui/core";
 import {
   Wrapper,
   StyledTextField,
   ExampleItemWrapper,
   ExampleWrapper,
   StyledTypography,
-  StyledCheckbox
+  StyledCheckbox,
+  WideStyledTextField
 } from "./App.styled";
-import rxmask from "rxmask";
+import rxmask, { InputOptions } from "rxmask";
 
 export interface AppState {
   playgroundInput: {
     playgroundRef: React.RefObject<HTMLTextAreaElement>;
     playgroundParser?: rxmask;
-    options: {
-      mask: string;
-      placeholderSymbol: string;
-      allowedCharacters: string;
-      rxmask: string;
-      showMask: number;
-      trailing: boolean;
-    };
+    options: InputOptions;
   };
   refs: Record<string, React.RefObject<HTMLTextAreaElement>>;
   parsers: Record<string, rxmask>;
+  checkedRadio: string;
 }
 
 const parserParams: Record<
@@ -43,7 +35,7 @@ const parserParams: Record<
     options: {
       mask: "+_ (___) ___-__-__",
       placeholderSymbol: "_",
-      showMask: Infinity,
+      showMask: "true",
       allowedCharacters: "[0-9]"
     }
   },
@@ -53,7 +45,7 @@ const parserParams: Record<
     options: {
       mask: "+_ (___) ___-__-__",
       placeholderSymbol: "_",
-      showMask: Infinity,
+      showMask: "true",
       allowedCharacters: "[ \\-\\+\\(\\)]"
     }
   },
@@ -62,7 +54,7 @@ const parserParams: Record<
     options: {
       mask: " _ [___] [___] [__]",
       placeholderSymbol: "_",
-      showMask: 8
+      showMask: "8"
     }
   },
   showMaskPartNoTrailing: {
@@ -71,8 +63,8 @@ const parserParams: Record<
     options: {
       mask: " _ [___] [___] [__]",
       placeholderSymbol: "_",
-      showMask: 8,
-      trailing: false
+      showMask: "8",
+      trailing: "false"
     }
   },
   regex: {
@@ -81,7 +73,7 @@ const parserParams: Record<
     options: {
       rxmask: "[A-Z][A-Z] [0-4][\\d][\\d]-[a-z][\\d]",
       placeholderSymbol: "*",
-      showMask: Infinity
+      showMask: "true"
     }
   }
 };
@@ -105,16 +97,17 @@ class App extends React.Component<{}, AppState> {
       playgroundInput: {
         playgroundRef,
         options: {
-          mask: "***-**-**",
+          mask: "",
           placeholderSymbol: "*",
-          allowedCharacters: "[0-9]",
           rxmask: "",
-          showMask: 0,
-          trailing: true
+          allowedCharacters: ".",
+          showMask: "0",
+          trailing: "true"
         }
       },
       refs: refObj,
-      parsers: {}
+      parsers: {},
+      checkedRadio: "simple"
     };
   }
 
@@ -144,8 +137,9 @@ class App extends React.Component<{}, AppState> {
   }
 
   // Generic onChange for playground input
-  onChange = (key: string, val: any) => {
+  onChangePlayground = (key: string, val: any) => {
     const { playgroundInput } = this.state;
+
     this.setState({
       playgroundInput: {
         ...playgroundInput,
@@ -157,24 +151,41 @@ class App extends React.Component<{}, AppState> {
     });
   };
 
-  render() {
-    const { playgroundInput, refs, parsers } = this.state;
-    const { options } = playgroundInput;
+  onChangeRadio = (key: string) => {
+    const { playgroundInput } = this.state;
+    const opts = parserParams[key].options;
+    this.setState({
+      playgroundInput: {
+        ...playgroundInput,
+        options: {
+          mask: opts.mask || "",
+          placeholderSymbol: opts.placeholderSymbol || "*",
+          rxmask: opts.rxmask || "",
+          allowedCharacters: opts.allowedCharacters || ".",
+          showMask: opts.showMask || "0",
+          trailing: opts.trailing || "true"
+        }
+      },
+      checkedRadio: key
+    });
+  };
 
+  render() {
+    const { playgroundInput, refs, parsers, checkedRadio } = this.state;
+    const { options } = playgroundInput;
     if (playgroundInput.playgroundParser) {
-      playgroundInput.playgroundParser!.setOptions({
-        ...options,
-        cursorPos: -1 // It will set cursor to the last position which ensures correct parsing
-      });
+      playgroundInput.playgroundParser!.setOptions(options);
       playgroundInput.playgroundParser!.onInput();
     }
 
     return (
       <Wrapper>
+        {/* Description */}
         <Typography variant="h2">rxmask.js</Typography>
         <Typography variant="h6">
           Advanced mask parser for html input or raw string parsing
         </Typography>
+        {/* Playground */}
         <ExampleWrapper>
           {Object.entries(options).map(([key, val]) => (
             <ExampleItemWrapper key={key}>
@@ -182,14 +193,14 @@ class App extends React.Component<{}, AppState> {
               {key === "trailing" ? (
                 <StyledCheckbox
                   key={key}
-                  checked={Boolean(val)}
-                  onChange={() => this.onChange(key, !Boolean(val))}
+                  checked={val === "true"}
+                  onChange={() => this.onChangePlayground(key, !Boolean(val))}
                 />
               ) : (
-                <TextField
+                <WideStyledTextField
                   key={key}
                   value={val}
-                  onChange={e => this.onChange(key, e.target.value)}
+                  onChange={e => this.onChangePlayground(key, e.target.value)}
                 />
               )}
             </ExampleItemWrapper>
@@ -199,9 +210,14 @@ class App extends React.Component<{}, AppState> {
           inputRef={playgroundInput.playgroundRef}
           onChange={() => playgroundInput.playgroundParser!.onInput()}
         />
+        {/* Some examples */}
         <ExampleWrapper>
           {Object.keys(refs).map(key => (
             <ExampleItemWrapper key={key}>
+              <Radio
+                checked={checkedRadio === key}
+                onChange={() => this.onChangeRadio(key)}
+              />
               <StyledTypography variant="subtitle2">
                 {parserParams[key].description}
               </StyledTypography>
