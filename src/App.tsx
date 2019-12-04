@@ -1,13 +1,16 @@
 import React from "react";
-import { Typography, TextField, Radio } from "@material-ui/core";
+import { Typography, Checkbox } from "@material-ui/core";
 import {
   Wrapper,
   StyledTextField,
   ExampleItemWrapper,
   ExampleWrapper,
   StyledTypography,
-  StyledCheckbox,
-  WideStyledTextField
+  WideStyledTextField,
+  ExampleWrapperWide,
+  TextWrapper,
+  StyledPaper,
+  StyledRadio
 } from "./App.styled";
 import rxmask, { InputOptions } from "rxmask";
 
@@ -27,11 +30,11 @@ const parserParams: Record<
   { description: string; options: Record<string, any> }
 > = {
   simple: {
-    description: "Phone mask - specify mask, mask symbol and allowed symbols",
+    description: "Specified mask, mask symbol and allowed symbols",
     options: { mask: "***-**-**", allowedCharacters: "[0-9]" }
   },
   showMask: {
-    description: "Phone mask - showing whole mask including unfilled part",
+    description: "Showing whole mask including unfilled part",
     options: {
       mask: "+_ (___) ___-__-__",
       placeholderSymbol: "_",
@@ -41,7 +44,7 @@ const parserParams: Record<
   },
   showMaskSymbols: {
     description:
-      'Phone mask, but only for special characters - allowedCharacters can include symbols from mask EXCEPT "symbol" property itself (note that special symbols should be escaped)',
+      'Can also parse special characters, including symbol from mask (except "symbol" property itself)',
     options: {
       mask: "+_ (___) ___-__-__",
       placeholderSymbol: "_",
@@ -50,7 +53,7 @@ const parserParams: Record<
     }
   },
   showMaskPart: {
-    description: "Random mask - only part of mask is shown",
+    description: "Only part of mask is shown",
     options: {
       mask: " _ [___] [___] [__]",
       placeholderSymbol: "_",
@@ -58,8 +61,7 @@ const parserParams: Record<
     }
   },
   showMaskPartNoTrailing: {
-    description:
-      "Random mask - only part of mask is shown and trailing part is disabled",
+    description: "Only part of mask is shown and trailing part is disabled",
     options: {
       mask: " _ [___] [___] [__]",
       placeholderSymbol: "_",
@@ -69,7 +71,7 @@ const parserParams: Record<
   },
   regex: {
     description:
-      'Regex mask - only certain symbols are allowed for each character (you don\'t need to specify "mask" property if "rxmask" is present (it will be ignored))',
+      'Regex mask - only certain symbols are allowed for each character ("mask" will be ignored if "rxmask" is present)',
     options: {
       rxmask: "[A-Z][A-Z] [0-4][\\d][\\d]-[a-z][\\d]",
       placeholderSymbol: "*",
@@ -127,13 +129,16 @@ class App extends React.Component<{}, AppState> {
       parserObj[key] = new rxmask(parserParams[key].options, refs[key].current);
     }
 
-    this.setState({
-      playgroundInput: {
-        ...playgroundInput,
-        playgroundParser
+    this.setState(
+      {
+        playgroundInput: {
+          ...playgroundInput,
+          playgroundParser
+        },
+        parsers: parserObj
       },
-      parsers: parserObj
-    });
+      () => this.onChangeRadio("simple") // Set initial value to "simple" mask
+    );
   }
 
   // Generic onChange for playground input
@@ -186,48 +191,52 @@ class App extends React.Component<{}, AppState> {
           Advanced mask parser for html input or raw string parsing
         </Typography>
         {/* Playground */}
-        <ExampleWrapper>
-          {Object.entries(options).map(([key, val]) => (
-            <ExampleItemWrapper key={key}>
-              <StyledTypography>{key}</StyledTypography>
-              {key === "trailing" ? (
-                <StyledCheckbox
-                  key={key}
-                  checked={val === "true"}
-                  onChange={() => this.onChangePlayground(key, !Boolean(val))}
-                />
-              ) : (
-                <WideStyledTextField
-                  key={key}
-                  value={val}
-                  onChange={e => this.onChangePlayground(key, e.target.value)}
-                />
-              )}
-            </ExampleItemWrapper>
-          ))}
-        </ExampleWrapper>
-        <TextField
-          inputRef={playgroundInput.playgroundRef}
-          onChange={() => playgroundInput.playgroundParser!.onInput()}
-        />
+        <StyledPaper>
+          <ExampleWrapper>
+            {Object.entries(options).map(([key, val]) => (
+              <ExampleItemWrapper key={key}>
+                <StyledTypography>{key}</StyledTypography>
+                {key === "trailing" ? (
+                  <Checkbox
+                    key={key}
+                    checked={val === "true"}
+                    onChange={() => this.onChangePlayground(key, val === "true" ? "false" : "true")}
+                  />
+                ) : (
+                    <WideStyledTextField
+                      key={key}
+                      value={val}
+                      onChange={e => this.onChangePlayground(key, e.target.value)}
+                    />
+                  )}
+              </ExampleItemWrapper>
+            ))}
+          </ExampleWrapper>
+          <WideStyledTextField
+            inputRef={playgroundInput.playgroundRef}
+            onChange={() => playgroundInput.playgroundParser!.onInput()}
+          />
+        </StyledPaper>
         {/* Some examples */}
-        <ExampleWrapper>
+        <ExampleWrapperWide>
           {Object.keys(refs).map(key => (
             <ExampleItemWrapper key={key}>
-              <Radio
-                checked={checkedRadio === key}
-                onChange={() => this.onChangeRadio(key)}
-              />
-              <StyledTypography variant="subtitle2">
-                {parserParams[key].description}
-              </StyledTypography>
+              <TextWrapper>
+                <StyledRadio
+                  checked={checkedRadio === key}
+                  onChange={() => this.onChangeRadio(key)}
+                />
+                <StyledTypography variant="subtitle2">
+                  {parserParams[key].description}
+                </StyledTypography>
+              </TextWrapper>
               <StyledTextField
                 inputRef={refs[key]}
                 onChange={() => parsers[key].onInput()}
               />
             </ExampleItemWrapper>
           ))}
-        </ExampleWrapper>
+        </ExampleWrapperWide>
       </Wrapper>
     );
   }
