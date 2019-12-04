@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography, Checkbox } from "@material-ui/core";
+import { Typography, Checkbox, Button } from "@material-ui/core";
 import {
   Wrapper,
   StyledTextField,
@@ -10,7 +10,8 @@ import {
   ExampleWrapperWide,
   TextWrapper,
   StyledPaper,
-  StyledRadio
+  StyledRadio,
+  StyledButtonGroup
 } from "./App.styled";
 import rxmask, { InputOptions } from "rxmask";
 
@@ -190,6 +191,11 @@ class App extends React.Component<{}, AppState> {
         <Typography variant="h6">
           Advanced mask parser for html input or raw string parsing
         </Typography>
+        <StyledButtonGroup>
+          <Button target="_blank" href="https://www.npmjs.com/package/rxmask">npmjs package</Button>
+          <Button target="_blank" href="https://github.com/kmeshavkin/rxmask">Package github</Button>
+          <Button target="_blank" href="https://github.com/kmeshavkin/rxmask-playground">Playground github</Button>
+        </StyledButtonGroup>
         {/* Playground */}
         <StyledPaper>
           <ExampleWrapper>

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { TextField, Typography, Paper, Radio } from "@material-ui/core";
+import { TextField, Typography, Paper, Radio, ButtonGroup } from "@material-ui/core";
 
 export const Wrapper = styled.div`
   display: flex;
@@ -38,6 +38,10 @@ export const StyledPaper = styled(Paper)`
 
 export const TextWrapper = styled.div`
   display: flex;
+`;
+
+export const StyledButtonGroup = styled(ButtonGroup)`
+  padding-top: 12px;
 `;
 
 export const StyledTypography = styled(Typography)`
