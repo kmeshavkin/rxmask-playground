@@ -1,8 +1,5 @@
 # rxmask-playground
 
-Interactive playground for rxmask package ([github page](https://github.com/kmeshavkin/rxmask), [npmjs page](https://www.npmjs.com/package/rxmask))
+Interactive playground for rxmask package.
 
-## TODO
-
-- Expand README
-- Change react icon, description and other
+You can find more info about package on the ([github page](https://github.com/kmeshavkin/rxmask), or download it from [npmjs](https://www.npmjs.com/package/rxmask)).
