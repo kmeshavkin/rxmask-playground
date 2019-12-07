@@ -9061,10 +9061,10 @@ rxjs@^6.4.0:
   dependencies:
     tslib "^1.9.0"
 
-rxmask@^1.3.28:
-  version "1.3.28"
-  resolved "https://registry.yarnpkg.com/rxmask/-/rxmask-1.3.28.tgz#afddc4207756b6e452d9486cca73abc1dc077fce"
-  integrity sha512-UK+hN0A19SJ2YSyjwY7aeCKtUbCVOBE8/HNjWGdNUPMjcm4Z9a1vDDqZUzvzRmGMnamlnkvHX1ABrlN46iBL1w==
+rxmask@^1.3.29:
+  version "1.3.29"
+  resolved "https://registry.yarnpkg.com/rxmask/-/rxmask-1.3.29.tgz#778eb3fcf29faf9e383f8a5b50dda0bd6e7a3e09"
+  integrity sha512-Cbqed8z/fgheGqul+1X0QGQMEUR57xGAMbkJSd6JY88NHbQiaJieN6wshDqEqYhUO1GQI0teN4GzqIEJMfg/PQ==
 
 safe-buffer@5.1.2, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.2"
