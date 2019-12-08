@@ -8,7 +8,7 @@ export const Wrapper = styled.div`
 `;
 
 export const ExampleWrapper = styled.div`
-  max-width: 600px;
+  width: 100%;
   div + div {
     padding-top: 12px;
   }
@@ -29,6 +29,8 @@ export const ExampleItemWrapper = styled.div`
 `;
 
 export const StyledPaper = styled(Paper)`
+  max-width: 600px;
+  width: 100%;
   margin-top: 24px;
   padding: 24px;
   display: flex;
@@ -46,17 +48,18 @@ export const StyledButtonGroup = styled(ButtonGroup)`
 
 export const StyledTypography = styled(Typography)`
   align-self: center;
-  max-width: 400px;
+  width: 140px;
   padding: 0 24px 0 12px;
 `;
 
 export const StyledTextField = styled(TextField)`
-  width: 140px;
+  max-width: 140px;
   align-self: center;
 `;
 
 export const WideStyledTextField = styled(TextField)`
-  width: 300px;
+  flex: 1;
+  max-width: 300px;
 `;
 
 export const StyledRadio = styled(Radio)`
