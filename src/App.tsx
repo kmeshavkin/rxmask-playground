@@ -11,7 +11,8 @@ import {
   TextWrapper,
   StyledPaper,
   StyledRadio,
-  StyledButtonGroup
+  StyledButtonGroup,
+  StyledFormControlLabel
 } from "./App.styled";
 import rxmask, { InputOptions } from "rxmask";
 
@@ -24,6 +25,7 @@ export interface AppState {
   refs: Record<string, React.RefObject<HTMLTextAreaElement>>;
   parsers: Record<string, rxmask>;
   checkedRadio: string;
+  prevPlaceholderSymbol: string;
 }
 
 const parserParams: Record<
@@ -34,39 +36,39 @@ const parserParams: Record<
     description: "Specified mask, mask symbol and allowed symbols",
     options: { mask: "***-**-**", allowedCharacters: "[0-9]" }
   },
-  showMask: {
+  maxMaskLength: {
     description: "Showing whole mask including unfilled part",
     options: {
       mask: "+_ (___) ___-__-__",
       placeholderSymbol: "_",
-      showMask: "true",
+      maxMaskLength: "Infinity",
       allowedCharacters: "[0-9]"
     }
   },
-  showMaskSymbols: {
+  maxMaskLengthSymbols: {
     description:
       'Can also parse special characters, including symbol from mask (except "symbol" property itself)',
     options: {
       mask: "+_ (___) ___-__-__",
       placeholderSymbol: "_",
-      showMask: "true",
+      maxMaskLength: "Infinity",
       allowedCharacters: "[ \\-\\+\\(\\)]"
     }
   },
-  showMaskPart: {
+  maxMaskLengthPart: {
     description: "Only part of mask is shown",
     options: {
       mask: " _ [___] [___] [__]",
       placeholderSymbol: "_",
-      showMask: "8"
+      maxMaskLength: "8"
     }
   },
-  showMaskPartNoTrailing: {
+  maxMaskLengthPartNoTrailing: {
     description: "Only part of mask is shown and trailing part is disabled",
     options: {
       mask: " _ [___] [___] [__]",
       placeholderSymbol: "_",
-      showMask: "8",
+      maxMaskLength: "8",
       trailing: "false"
     }
   },
@@ -76,7 +78,7 @@ const parserParams: Record<
     options: {
       rxmask: "[A-Z][A-Z] [0-4][\\d][\\d]-[a-z][\\d]",
       placeholderSymbol: "*",
-      showMask: "true"
+      maxMaskLength: "Infinity"
     }
   }
 };
@@ -104,13 +106,14 @@ class App extends React.Component<{}, AppState> {
           placeholderSymbol: "*",
           rxmask: "",
           allowedCharacters: ".",
-          showMask: "0",
+          maxMaskLength: "0",
           trailing: "true"
         }
       },
       refs: refObj,
       parsers: {},
-      checkedRadio: "simple"
+      checkedRadio: "simple",
+      prevPlaceholderSymbol: ''
     };
   }
 
@@ -145,16 +148,43 @@ class App extends React.Component<{}, AppState> {
   // Generic onChange for playground input
   onChangePlayground = (key: string, val: any) => {
     const { playgroundInput } = this.state;
+    const { options } = playgroundInput;
 
     this.setState({
       playgroundInput: {
         ...playgroundInput,
         options: {
-          ...playgroundInput.options,
+          ...options,
           [key]: val
         }
       }
     });
+  };
+
+  // Generic onFocus for playground input
+  onFocus = (key: string, val: any) => {
+    if (key === 'placeholderSymbol') {
+      this.setState({ prevPlaceholderSymbol: val });
+    }
+  };
+
+  // Generic onBlur for playground input
+  onBlur = (key: string, val: any) => {
+    const { playgroundInput, prevPlaceholderSymbol } = this.state;
+    const { options } = playgroundInput;
+    if (options && options.mask && key === 'placeholderSymbol' && prevPlaceholderSymbol && prevPlaceholderSymbol !== '') {
+      const symbol = new RegExp(this.escapeRegExp(prevPlaceholderSymbol), 'g');
+      const newMaskValue = options.mask.replace(symbol, options.placeholderSymbol || '');
+      this.setState({
+        playgroundInput: {
+          ...playgroundInput,
+          options: {
+            ...options,
+            mask: newMaskValue
+          }
+        }
+      });
+    }
   };
 
   onChangeRadio = (key: string) => {
@@ -168,12 +198,16 @@ class App extends React.Component<{}, AppState> {
           placeholderSymbol: opts.placeholderSymbol || "*",
           rxmask: opts.rxmask || "",
           allowedCharacters: opts.allowedCharacters || ".",
-          showMask: opts.showMask || "0",
+          maxMaskLength: opts.maxMaskLength || "0",
           trailing: opts.trailing || "true"
         }
       },
       checkedRadio: key
     });
+  };
+
+  escapeRegExp = (str: string) => {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   };
 
   render() {
@@ -198,6 +232,7 @@ class App extends React.Component<{}, AppState> {
         </StyledButtonGroup>
         {/* Playground */}
         <StyledPaper>
+          <Typography align="center" variant="subtitle2" color="textSecondary" paragraph>Tweak parameters for input in the bottom of this block yourself or select an example below</Typography>
           <ExampleWrapper>
             {Object.entries(options).map(([key, val]) => (
               <ExampleItemWrapper key={key}>
@@ -213,6 +248,8 @@ class App extends React.Component<{}, AppState> {
                       key={key}
                       value={val}
                       onChange={e => this.onChangePlayground(key, e.target.value)}
+                      onBlur={e => this.onBlur(key, e.target.value)}
+                      onFocus={e => this.onFocus(key, e.target.value)}
                     />
                   )}
               </ExampleItemWrapper>
@@ -224,17 +261,17 @@ class App extends React.Component<{}, AppState> {
           />
         </StyledPaper>
         {/* Some examples */}
+        <Typography align="center" variant="subtitle2" color="textSecondary">Type in any input or select radio button to display all parameters of this input in the top block</Typography>
         <ExampleWrapperWide>
           {Object.keys(refs).map(key => (
             <ExampleItemWrapper key={key}>
               <TextWrapper>
-                <StyledRadio
-                  checked={checkedRadio === key}
-                  onChange={() => this.onChangeRadio(key)}
-                />
-                <StyledTypography variant="subtitle2">
-                  {parserParams[key].description}
-                </StyledTypography>
+                <StyledFormControlLabel
+                  control={<StyledRadio
+                    checked={checkedRadio === key}
+                    onChange={() => this.onChangeRadio(key)}
+                  />}
+                  label={parserParams[key].description} />
               </TextWrapper>
               <StyledTextField
                 inputRef={refs[key]}

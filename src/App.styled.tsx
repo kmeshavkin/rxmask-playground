@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { TextField, Typography, Paper, Radio, ButtonGroup } from "@material-ui/core";
+import { TextField, Typography, Paper, Radio, ButtonGroup, FormControlLabel } from "@material-ui/core";
 
 export const Wrapper = styled.div`
   display: flex;
@@ -15,7 +15,7 @@ export const ExampleWrapper = styled.div`
 `;
 
 export const ExampleWrapperWide = styled.div`
-  padding-top: 24px;
+  padding-top: 12px;
   max-width: 600px;
   & > div + div {
     padding-top: 24px;
@@ -31,7 +31,7 @@ export const ExampleItemWrapper = styled.div`
 export const StyledPaper = styled(Paper)`
   max-width: 600px;
   width: 100%;
-  margin-top: 24px;
+  margin: 24px 0;
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -55,6 +55,10 @@ export const StyledTypography = styled(Typography)`
 export const StyledTextField = styled(TextField)`
   max-width: 140px;
   align-self: center;
+`;
+
+export const StyledFormControlLabel = styled(FormControlLabel)`
+  max-width: 400px;
 `;
 
 export const WideStyledTextField = styled(TextField)`
