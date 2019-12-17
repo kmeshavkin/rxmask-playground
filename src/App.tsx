@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography, Checkbox, Button } from "@material-ui/core";
+import { Typography, Checkbox, Button, Tooltip, ClickAwayListener } from "@material-ui/core";
 import {
   Wrapper,
   StyledTextField,
@@ -12,7 +12,9 @@ import {
   StyledPaper,
   StyledRadio,
   StyledButtonGroup,
-  StyledFormControlLabel
+  StyledFormControlLabel,
+  StyledFab,
+  FlexWrapper
 } from "./App.styled";
 import rxmask, { InputOptions } from "rxmask";
 
@@ -26,7 +28,17 @@ export interface AppState {
   parsers: Record<string, rxmask>;
   checkedRadio: string;
   prevPlaceholderSymbol: string;
+  tooltips: Record<string, boolean>;
 }
+
+const paramsDescriptions: Record<string, string> = {
+  mask: 'Mask, should include `placeholderSymbol`, otherwise user will not be able to type any characters.',
+  rxmask: 'Regex mask (if `rxmask` is present, `mask` will be ignored), characters in square brackets will be parsed as characters for user input, any other character will be parsed as mask symbol.',
+  placeholderSymbol: 'Symbol, that specifies character that will be replaced in mask with user input.',
+  allowedCharacters: 'Characters allowed to be used in this input. If this option is present, all other characters will be ignored when user types them.',
+  maxMaskLength: 'Show whole mask, part of it or not show it at all (can be any `number` including `Infinity` to show whole mask).',
+  trailing: 'If trailing is `true`, show trailing mask symbols. Example: if with mask `***--**-**` user types `123`, user will get `123--`, but if he removes symbol `4` from `123--4`, he will get just `123` without `-`. If trailing is disabled, regardless of user actions value `123` will always result in just `123`.',
+};
 
 const parserParams: Record<
   string,
@@ -113,7 +125,8 @@ class App extends React.Component<{}, AppState> {
       refs: refObj,
       parsers: {},
       checkedRadio: "simple",
-      prevPlaceholderSymbol: ''
+      prevPlaceholderSymbol: '',
+      tooltips: {}
     };
   }
 
@@ -169,7 +182,7 @@ class App extends React.Component<{}, AppState> {
   };
 
   // Generic onBlur for playground input
-  onBlur = (key: string, val: any) => {
+  onBlur = (key: string) => {
     const { playgroundInput, prevPlaceholderSymbol } = this.state;
     const { options } = playgroundInput;
     if (options && options.mask && key === 'placeholderSymbol' && prevPlaceholderSymbol && prevPlaceholderSymbol !== '') {
@@ -210,8 +223,21 @@ class App extends React.Component<{}, AppState> {
     return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   };
 
+  handleError(type: string, position: number, value: string) {
+    switch (type) {
+      case 'length':
+        return `input is too long`;
+      case 'allowedCharacters':
+        return `character "${value}" is not allowed by allowedCharacters`;
+      case 'rxmask':
+        return `character "${value}" on position ${position} is not allowed by rxmask`;
+      default:
+        break;
+    }
+  }
+
   render() {
-    const { playgroundInput, refs, parsers, checkedRadio } = this.state;
+    const { playgroundInput, refs, parsers, checkedRadio, tooltips } = this.state;
     const { options } = playgroundInput;
     if (playgroundInput.playgroundParser) {
       playgroundInput.playgroundParser!.setOptions(options);
@@ -236,7 +262,23 @@ class App extends React.Component<{}, AppState> {
           <ExampleWrapper>
             {Object.entries(options).map(([key, val]) => (
               <ExampleItemWrapper key={key}>
-                <StyledTypography>{key}</StyledTypography>
+                <FlexWrapper>
+                  <StyledTypography>{key}</StyledTypography>
+                  <ClickAwayListener onClickAway={() => this.setState({ tooltips: { ...tooltips, [key]: false } })}>
+                    <Tooltip
+                      placement="top"
+                      arrow
+                      title={paramsDescriptions[key]}
+                      disableFocusListener
+                      disableHoverListener
+                      disableTouchListener
+                      onClose={() => this.setState({ tooltips: { ...tooltips, [key]: false } })}
+                      open={tooltips[key] || false}
+                    >
+                      <StyledFab disableRipple onClick={() => this.setState({ tooltips: { ...tooltips, [key]: true } })}>i</StyledFab>
+                    </Tooltip>
+                  </ClickAwayListener>
+                </FlexWrapper>
                 {key === "trailing" ? (
                   <Checkbox
                     key={key}
@@ -248,7 +290,7 @@ class App extends React.Component<{}, AppState> {
                       key={key}
                       value={val}
                       onChange={e => this.onChangePlayground(key, e.target.value)}
-                      onBlur={e => this.onBlur(key, e.target.value)}
+                      onBlur={() => this.onBlur(key)}
                       onFocus={e => this.onFocus(key, e.target.value)}
                     />
                   )}
@@ -256,8 +298,11 @@ class App extends React.Component<{}, AppState> {
             ))}
           </ExampleWrapper>
           <WideStyledTextField
+            variant="outlined"
             inputRef={playgroundInput.playgroundRef}
-            onChange={() => playgroundInput.playgroundParser!.onInput()}
+            onChange={() => this.forceUpdate()}
+            error={playgroundInput.playgroundParser ? playgroundInput.playgroundParser.errors.length !== 0 : false}
+            helperText={playgroundInput.playgroundParser ? playgroundInput.playgroundParser.errors.map(err => this.handleError(err.type, err.position, err.symbol)).join(', ') : ''}
           />
         </StyledPaper>
         {/* Some examples */}
@@ -275,7 +320,12 @@ class App extends React.Component<{}, AppState> {
               </TextWrapper>
               <StyledTextField
                 inputRef={refs[key]}
-                onChange={() => parsers[key].onInput()}
+                onChange={() => {
+                  parsers[key].onInput();
+                  this.forceUpdate();
+                }}
+                error={parsers[key] ? parsers[key].errors.length !== 0 : false}
+                helperText={parsers[key] ? parsers[key].errors.map(err => this.handleError(err.type, err.position, err.symbol)).join(', ') : ''}
               />
             </ExampleItemWrapper>
           ))}
