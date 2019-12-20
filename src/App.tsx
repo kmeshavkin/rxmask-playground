@@ -2,13 +2,11 @@ import React from "react";
 import { Typography, Checkbox, Button, Tooltip, ClickAwayListener } from "@material-ui/core";
 import {
   Wrapper,
-  StyledTextField,
   ExampleItemWrapper,
   ExampleWrapper,
   StyledTypography,
   WideStyledTextField,
   ExampleWrapperWide,
-  TextWrapper,
   StyledPaper,
   StyledRadio,
   StyledButtonGroup,
@@ -24,12 +22,12 @@ export interface AppState {
     playgroundParser?: rxmask;
     options: InputOptions;
   };
-  refs: Record<string, React.RefObject<HTMLTextAreaElement>>;
-  parsers: Record<string, rxmask>;
   checkedRadio: string;
   prevPlaceholderSymbol: string;
   tooltips: Record<string, boolean>;
 }
+
+type ParserParams = Record<string, { description: string; options: Record<string, any> }>;
 
 const paramsDescriptions: Record<string, string> = {
   mask: 'Mask, should include `placeholderSymbol`, otherwise user will not be able to type any characters.',
@@ -40,10 +38,7 @@ const paramsDescriptions: Record<string, string> = {
   trailing: 'If trailing is `true`, show trailing mask symbols. Example: if with mask `***--**-**` user types `123`, user will get `123--`, but if he removes symbol `4` from `123--4`, he will get just `123` without `-`. If trailing is disabled, regardless of user actions value `123` will always result in just `123`.',
 };
 
-const parserParams: Record<
-  string,
-  { description: string; options: Record<string, any> }
-> = {
+const parserParams: ParserParams = {
   simple: {
     description: "Specified mask, mask symbol and allowed symbols",
     options: { mask: "***-**-**", allowedCharacters: "[0-9]" }
@@ -104,12 +99,6 @@ class App extends React.Component<{}, AppState> {
       HTMLTextAreaElement
     >;
 
-    // Set all other example refs
-    const refObj = {} as Record<string, React.RefObject<HTMLTextAreaElement>>;
-    for (const key in parserParams) {
-      refObj[key] = React.createRef() as React.RefObject<HTMLTextAreaElement>;
-    }
-
     this.state = {
       playgroundInput: {
         playgroundRef,
@@ -122,8 +111,6 @@ class App extends React.Component<{}, AppState> {
           trailing: "true"
         }
       },
-      refs: refObj,
-      parsers: {},
       checkedRadio: "simple",
       prevPlaceholderSymbol: '',
       tooltips: {}
@@ -131,7 +118,7 @@ class App extends React.Component<{}, AppState> {
   }
 
   componentDidMount() {
-    const { playgroundInput, refs } = this.state;
+    const { playgroundInput } = this.state;
     const { options } = playgroundInput;
 
     // Set playground parser
@@ -140,19 +127,12 @@ class App extends React.Component<{}, AppState> {
       playgroundInput.playgroundRef.current
     );
 
-    // Set all other example parsers
-    const parserObj = {} as Record<string, rxmask>;
-    for (const key in parserParams) {
-      parserObj[key] = new rxmask(parserParams[key].options, refs[key].current);
-    }
-
     this.setState(
       {
         playgroundInput: {
           ...playgroundInput,
           playgroundParser
         },
-        parsers: parserObj
       },
       () => this.onChangeRadio("simple") // Set initial value to "simple" mask
     );
@@ -237,7 +217,7 @@ class App extends React.Component<{}, AppState> {
   }
 
   render() {
-    const { playgroundInput, refs, parsers, checkedRadio, tooltips } = this.state;
+    const { playgroundInput, checkedRadio, tooltips } = this.state;
     const { options } = playgroundInput;
     if (playgroundInput.playgroundParser) {
       playgroundInput.playgroundParser!.setOptions(options);
@@ -298,6 +278,7 @@ class App extends React.Component<{}, AppState> {
             ))}
           </ExampleWrapper>
           <WideStyledTextField
+            placeholder="Type anything here"
             variant="outlined"
             inputRef={playgroundInput.playgroundRef}
             onChange={() => this.forceUpdate()}
@@ -306,27 +287,16 @@ class App extends React.Component<{}, AppState> {
           />
         </StyledPaper>
         {/* Some examples */}
-        <Typography align="center" variant="subtitle2" color="textSecondary">Type in any input or select radio button to display all parameters of this input in the top block</Typography>
+        <Typography align="center" variant="subtitle2" color="textSecondary">You can select one of the presets below</Typography>
         <ExampleWrapperWide>
-          {Object.keys(refs).map(key => (
+          {Object.keys(parserParams).map(key => (
             <ExampleItemWrapper key={key}>
-              <TextWrapper>
-                <StyledFormControlLabel
-                  control={<StyledRadio
-                    checked={checkedRadio === key}
-                    onChange={() => this.onChangeRadio(key)}
-                  />}
-                  label={parserParams[key].description} />
-              </TextWrapper>
-              <StyledTextField
-                inputRef={refs[key]}
-                onChange={() => {
-                  parsers[key].onInput();
-                  this.forceUpdate();
-                }}
-                error={parsers[key] ? parsers[key].errors.length !== 0 : false}
-                helperText={parsers[key] ? parsers[key].errors.map(err => this.handleError(err.type, err.position, err.symbol)).join(', ') : ''}
-              />
+              <StyledFormControlLabel
+                control={<StyledRadio
+                  checked={checkedRadio === key}
+                  onChange={() => this.onChangeRadio(key)}
+                />}
+                label={parserParams[key].description} />
             </ExampleItemWrapper>
           ))}
         </ExampleWrapperWide>

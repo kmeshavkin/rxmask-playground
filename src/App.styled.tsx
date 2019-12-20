@@ -42,10 +42,6 @@ export const StyledPaper = styled(Paper)`
   align-items: center;
 `;
 
-export const TextWrapper = styled.div`
-  display: flex;
-`;
-
 export const StyledButtonGroup = styled(ButtonGroup)`
   padding-top: 12px;
 `;
@@ -66,13 +62,10 @@ export const StyledFab = styled(Fab)`
   }
 `;
 
-export const StyledTextField = styled(TextField)`
-  max-width: 140px;
-  align-self: center;
-`;
-
 export const StyledFormControlLabel = styled(FormControlLabel)`
   max-width: 400px;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 `;
 
 export const WideStyledTextField = styled(TextField)`
