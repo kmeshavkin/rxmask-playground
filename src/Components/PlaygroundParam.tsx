@@ -1,11 +1,10 @@
 import React from "react";
 import { ExampleItemWrapper } from "../App.styled";
-import { WideStyledTextField } from "./Playground.styled";
-import { FlexWrapper, StyledTypography, StyledFab } from './PlaygroundParam.styled';
+import { FlexWrapper, StyledTypography, StyledFab, StyledTextField } from './PlaygroundParam.styled';
 import { ClickAwayListener, Tooltip, Checkbox } from "@material-ui/core";
 import { paramsDescriptions } from "../utils/const";
 
-export interface PlaygroundParamsProps {
+export interface PlaygroundParamProps {
   optionName: string;
   optionValue: any;
   onChangePlayground: (key: string, val: any) => void;
@@ -13,11 +12,11 @@ export interface PlaygroundParamsProps {
   onBlurHandler: (key: string, val: string) => void;
 }
 
-export interface PlaygroundParamsState {
+export interface PlaygroundParamState {
   tooltipOpen: boolean;
 }
 
-class PlaygroundParams extends React.Component<PlaygroundParamsProps, PlaygroundParamsState> {
+class PlaygroundParam extends React.Component<PlaygroundParamProps, PlaygroundParamState> {
   state = {
     tooltipOpen: false
   }
@@ -51,7 +50,7 @@ class PlaygroundParams extends React.Component<PlaygroundParamsProps, Playground
               onChange={() => onChangePlayground(optionName, optionValue === "true" ? "false" : "true")}
             />
           ) : (
-              <WideStyledTextField
+              <StyledTextField
                 value={optionValue}
                 onChange={e => onChangePlayground(optionName, e.target.value)}
                 onBlur={e => onBlurHandler(optionName, e.target.value)}
@@ -64,4 +63,4 @@ class PlaygroundParams extends React.Component<PlaygroundParamsProps, Playground
   }
 }
 
-export default PlaygroundParams;
+export default PlaygroundParam;

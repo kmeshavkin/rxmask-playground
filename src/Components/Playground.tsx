@@ -1,5 +1,5 @@
 import React from "react";
-import { StyledPaper, ExampleWrapper, WideStyledTextField } from "./Playground.styled";
+import { StyledPaper, PlaygroundParamWrapper, WideStyledTextField } from "./Playground.styled";
 import { Typography } from "@material-ui/core";
 import { parserParams } from "../utils/const";
 import rxmask, { InputOptions } from "rxmask";
@@ -145,7 +145,7 @@ class Playground extends React.Component<PlaygroundProps, PlaygroundState> {
         <Typography align="center" variant="subtitle2" color="textSecondary" paragraph>
           Tweak parameters for input in the bottom of this block yourself or select an example below
         </Typography>
-        <ExampleWrapper>
+        <PlaygroundParamWrapper>
           {
             Object.entries(options).map(([key, val]) => (
               <PlaygroundParam
@@ -157,7 +157,7 @@ class Playground extends React.Component<PlaygroundProps, PlaygroundState> {
               />
             ))
           }
-        </ExampleWrapper>
+        </PlaygroundParamWrapper>
         <WideStyledTextField
           placeholder="Type anything here"
           variant="outlined"

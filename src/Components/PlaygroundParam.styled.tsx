@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Fab, Typography } from "@material-ui/core";
+import { Fab, Typography, TextField } from "@material-ui/core";
 
 export const FlexWrapper = styled.div`
   display: flex;
@@ -19,4 +19,9 @@ export const StyledFab = styled(Fab)`
     line-height: 0;
     text-transform: lowercase;
   }
+`;
+
+export const StyledTextField = styled(TextField)`
+  max-width: 300px;
+  flex: 1;
 `;

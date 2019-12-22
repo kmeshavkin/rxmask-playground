@@ -12,14 +12,17 @@ export const StyledPaper = styled(Paper)`
   align-items: center;
 `;
 
-export const ExampleWrapper = styled.div`
-  width: 100%;
-  div + div {
-    padding-top: 12px;
+export const PlaygroundParamWrapper = styled.div`
+width: 100%;
+  & > div {
+    padding-bottom: 12px;
+
+    div:first-child {
+      padding-right: 24px;
+    }
   }
 `;
 
 export const WideStyledTextField = styled(TextField)`
-  flex: 1;
-  max-width: 300px;
+  width: 250px;
 `;
