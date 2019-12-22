@@ -2,7 +2,7 @@ import React from "react";
 import { StyledPaper, PlaygroundParamWrapper, WideStyledTextField } from "./Playground.styled";
 import { Typography } from "@material-ui/core";
 import { parserParams } from "../utils/const";
-import rxmask, { InputOptions } from "rxmask";
+import rxmask, { InputOptions, RXError } from "rxmask";
 import PlaygroundParam from "./PlaygroundParam";
 
 export interface PlaygroundProps {
@@ -170,7 +170,7 @@ class Playground extends React.Component<PlaygroundProps, PlaygroundState> {
             // forceUpdate to display errors on input or remove them (in case of prevErrors.length)
             if (playgroundInput.playgroundParser.errors.length !== 0 || prevErrors.length !== 0) this.forceUpdate();
           }}
-          helperText={playgroundInput.playgroundParser.errors.map(err => handleError(err.type, err.position, err.symbol)).join(', ')}
+          helperText={errorHelper(playgroundInput.playgroundParser.errors)}
         />
       </StyledPaper>
     );
@@ -194,15 +194,43 @@ function escapeRegExp(str: string) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
 
-function handleError(type: string, position: number, value: string) {
-  switch (type) {
-    case 'length':
-      return `input is too long`;
-    case 'allowedCharacters':
-      return `character "${value}" is not allowed by allowedCharacters`;
-    case 'rxmask':
-      return `character "${value}" on position ${position} is not allowed by rxmask`;
-    default:
-      break;
-  }
+// function handleError(type: string, position: number, value: string) {
+//   switch (type) {
+//     case 'length':
+//       return `input is too long`;
+//     case 'allowedCharacters':
+//       return `character "${value}" is not allowed by allowedCharacters`;
+//     case 'rxmask':
+//       return `character "${value}" on position ${position} is not allowed by rxmask`;
+//     default:
+//       break;
+//   }
+// }
+
+function errorHelper(arr: RXError[]) {
+  // Group errors by type
+  const groupedByType = arr.reduce((acc: Record<string, RXError[]>, err) => {
+    acc[err.type] = acc[err.type] || [];
+    acc[err.type].push(err);
+    return acc;
+  }, {});
+
+  // Form string from these groups, message for each depends on its type
+  const str = Object.entries(groupedByType).map(([type, err]) => {
+    switch (type) {
+      case 'length':
+        return `input is too long`;
+      case 'allowedCharacters':
+        const symbols = Array.from(new Set(err.map((val) => val.symbol)));
+        return `char${symbols.length === 1 ? '' : 's'} "${symbols.join(', ')}" ${symbols.length === 1 ? 'is' : 'are'} not allowed by allowedCharacters`;
+      case 'rxmask':
+        const strArr = err.map((val) => `char "${val.symbol}" on pos ${val.position}`);
+        return `${strArr.join(', ')} ${strArr.length === 1 ? 'is' : 'are'} not allowed by allowedCharacters`;
+      default:
+        return '';
+    }
+  }).join('; ');
+
+  // Make first letter uppercase and return
+  return str.slice(0, 1).toUpperCase() + str.slice(1);
 }

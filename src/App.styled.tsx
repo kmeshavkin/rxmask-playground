@@ -8,10 +8,9 @@ export const Wrapper = styled.div`
 `;
 
 export const ExampleWrapperWide = styled.div`
-  padding-top: 12px;
   max-width: 600px;
   & > div + div {
-    padding-top: 24px;
+    padding-top: 6px;
   }
 `;
 
@@ -20,7 +19,7 @@ export const StyledButtonGroup = styled(ButtonGroup)`
 `;
 
 export const StyledFormControlLabel = styled(FormControlLabel)`
-  max-width: 400px;
+  max-width: 500px;
   margin-left: 0 !important;
   margin-right: 0 !important;
 `;
