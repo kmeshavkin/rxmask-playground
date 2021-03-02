@@ -1,10 +1,11 @@
-import styled from "styled-components";
-import { Radio, ButtonGroup, FormControlLabel } from "@material-ui/core";
+import styled from 'styled-components';
+import { Radio, ButtonGroup, FormControlLabel } from '@material-ui/core';
 
 export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 0 12px;
 `;
 
 export const ExampleWrapperWide = styled.div`

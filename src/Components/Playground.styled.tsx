@@ -1,10 +1,7 @@
-
-import styled from "styled-components";
-import { Paper, TextField } from "@material-ui/core";
+import styled from 'styled-components';
+import { Paper, TextField } from '@material-ui/core';
 
 export const StyledPaper = styled(Paper)`
-  max-width: 600px;
-  width: 100%;
   margin: 24px 0;
   padding: 24px;
   display: flex;
@@ -13,7 +10,7 @@ export const StyledPaper = styled(Paper)`
 `;
 
 export const PlaygroundParamWrapper = styled.div`
-width: 100%;
+  width: 100%;
   & > div {
     padding-bottom: 12px;
 
